@@ -102,35 +102,30 @@
         async function fetchPrices() {
             const bitoUrl = 'https://api.bitopro.com/v3/tickers/usdt_twd';
             const maxUrl = 'https://max-api.maicoin.com/api/v2/tickers/usdttwd';
-            const proxy = 'https://api.allorigins.win/get?url=';
 
+            // BitoPro - 直接 REST API
             try {
                 const res = await fetch(bitoUrl);
                 const json = await res.json();
-                if (json.data) document.getElementById('bito-last').innerText = parseFloat(json.data.lastPrice).toFixed(3);
+                if (json && json.data && json.data.lastPrice) {
+                    document.getElementById('bito-last').innerText = parseFloat(json.data.lastPrice).toFixed(3);
+                }
             } catch (e) {
-                try {
-                    const resP = await fetch(proxy + encodeURIComponent(bitoUrl));
-                    const jsonP = await resP.json();
-                    const data = JSON.parse(jsonP.contents);
-                    document.getElementById('bito-last').innerText = parseFloat(data.data.lastPrice).toFixed(3);
-                } catch(pE) {}
+                console.log("BitoPro fetch failed");
             }
             
+            // MAX - 簡單直接的方式（不依賴 proxy）
             try {
                 const res = await fetch(maxUrl);
                 const json = await res.json();
-                if (json.last) document.getElementById('max-last').innerText = parseFloat(json.last).toFixed(3);
+                if (json && json.last) {
+                    document.getElementById('max-last').innerText = parseFloat(json.last).toFixed(3);
+                }
             } catch (e) {
-                try {
-                    const resP = await fetch(proxy + encodeURIComponent(maxUrl));
-                    const jsonP = await resP.json();
-                    const data = JSON.parse(jsonP.contents);
-                    if (data.last) document.getElementById('max-last').innerText = parseFloat(data.last).toFixed(3);
-                } catch(pE) {}
+                console.log("MAX fetch failed");
             }
         }
-        setInterval(fetchPrices, 4000);
+        setInterval(fetchPrices, 3000);
 
         function loadChart(symbol) {
             tvWidget = new TradingView.widget({
